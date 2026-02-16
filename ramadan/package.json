@@ -1,0 +1,22 @@
+{
+  "name": "ramadan-companion",
+  "version": "1.0.0",
+  "description": "A comprehensive Ramadan website with prayer times, notifications, and PWA support",
+  "main": "public/index.html",
+  "scripts": {
+    "start": "serve public",
+    "dev": "serve public",
+    "build": "echo 'No build step required'"
+  },
+  "keywords": [
+    "ramadan",
+    "prayer-times",
+    "islamic",
+    "pwa"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.0.0"
+  }
+}

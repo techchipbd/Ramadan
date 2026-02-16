@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ramadan Companion - Your Spiritual Journey</title>
+    <meta name="description" content="Track Ramadan prayer times, get notifications for Iftar and Suhoor, and manage your spiritual journey">
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a2f3f">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="src/css/style.css">
+</head>
+<body>
+    <!-- Moon Phase Background Animation -->
+    <div class="moon-phase-bg"></div>
+    
+    <!-- Glass Navigation -->
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-moon"></i>
+                <span>Ramadan Companion</span>
+            </div>
+            <div class="nav-links">
+                <a href="#home" class="active"><i class="fas fa-home"></i> Home</a>
+                <a href="#calendar"><i class="fas fa-calendar"></i> Calendar</a>
+                <a href="#prayer"><i class="fas fa-mosque"></i> Prayer Times</a>
+                <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+            </div>
+            <button class="install-btn glass" id="installPWA" style="display: none;">
+                <i class="fas fa-download"></i> Install App
+            </button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="welcome-card glass">
+                <h1 class="animated-title">Ramadan Mubarak</h1>
+                <div class="hijri-date-flip" id="hijriDateFlip">
+                    <div class="flip-unit">
+                        <span class="flip-number" id="hijriDay">01</span>
+                        <span class="flip-label">Day</span>
+                    </div>
+                    <div class="flip-unit">
+                        <span class="flip-number" id="hijriMonth">09</span>
+                        <span class="flip-label">Month</span>
+                    </div>
+                    <div class="flip-unit">
+                        <span class="flip-number" id="hijriYear">1445</span>
+                        <span class="flip-label">Year</span>
+                    </div>
+                </div>
+                
+                <div class="countdown-timers">
+                    <div class="countdown-card glass" id="nextIftar">
+                        <i class="fas fa-sunset"></i>
+                        <h3>Next Iftar</h3>
+                        <div class="timer" id="iftarTimer">--:--:--</div>
+                    </div>
+                    <div class="countdown-card glass" id="nextSuhoor">
+                        <i class="fas fa-sun"></i>
+                        <h3>Next Suhoor</h3>
+                        <div class="timer" id="suhoorTimer">--:--:--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prayer Timeline Progress -->
+            <div class="prayer-timeline glass">
+                <h3><i class="fas fa-chart-line"></i> Today's Prayer Progress</h3>
+                <div class="timeline-bar">
+                    <div class="progress" id="prayerProgress" style="width: 0%"></div>
+                </div>
+                <div class="prayer-times-mini" id="prayerTimesMini"></div>
+            </div>
+
+            <!-- Current Location & Weather -->
+            <div class="location-info glass">
+                <i class="fas fa-map-marker-alt"></i>
+                <span id="currentLocation">Detecting location...</span>
+                <button class="refresh-location" onclick="detectLocation()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Calendar Section -->
+        <section id="calendar" class="section">
+            <div class="calendar-header glass">
+                <h2><i class="fas fa-calendar-alt"></i> Ramadan Calendar</h2>
+                <div class="calendar-controls">
+                    <button class="glass" onclick="exportPDF()">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <div class="month-display">
+                        <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                        <span id="currentMonthYear">Ramadan 1445</span>
+                        <button onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="calendar-grid glass" id="calendarGrid"></div>
+        </section>
+
+        <!-- Prayer Times Section -->
+        <section id="prayer" class="section">
+            <div class="prayer-header glass">
+                <h2><i class="fas fa-clock"></i> Prayer Times</h2>
+                <div class="calculation-method">
+                    <label>Calculation Method:</label>
+                    <select id="calcMethod" onchange="updateCalculationMethod()">
+                        <option value="4">Umm Al-Qura (Makkah)</option>
+                        <option value="3">Egyptian General Authority</option>
+                        <option value="2">Islamic Society of North America</option>
+                        <option value="5">Karachi</option>
+                        <option value="1">University of Islamic Sciences, Karachi</option>
+                        <option value="12">Dubai</option>
+                        <option value="15">Kuwait</option>
+                        <option value="16">Qatar</option>
+                        <option value="11">Majlis Ugama Islam Singapura</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="prayer-cards" id="prayerCards"></div>
+
+            <!-- City Search Override -->
+            <div class="city-search glass">
+                <i class="fas fa-search"></i>
+                <input type="text" id="citySearch" placeholder="Search for a city..." onkeyup="searchCity(event)">
+                <button onclick="addFavoriteCity()" class="glass">
+                    <i class="far fa-star"></i> Save City
+                </button>
+            </div>
+
+            <!-- Favorite Cities -->
+            <div class="favorite-cities glass" id="favoriteCities"></div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="section">
+            <div class="settings-container glass">
+                <h2><i class="fas fa-cog"></i> Settings</h2>
+                
+                <div class="setting-group">
+                    <h3>Notifications</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="notifyIftar" checked>
+                        <span class="toggle-slider"></span>
+                        <span>Iftar Notifications</span>
+                    </label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="notifySuhoor" checked>
+                        <span class="toggle-slider"></span>
+                        <span>Suhoor Notifications</span>
+                    </label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="notifyPrayer" checked>
+                        <span class="toggle-slider"></span>
+                        <span>Prayer Time Notifications</span>
+                    </label>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Sound Alerts</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="soundIftar" checked>
+                        <span class="toggle-slider"></span>
+                        <span>Iftar Sound</span>
+                    </label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="soundSuhoor" checked>
+                        <span class="toggle-slider"></span>
+                        <span>Suhoor Sound</span>
+                    </label>
+                    <select id="soundSelect">
+                        <option value="adhan1">Adhan - Makkah</option>
+                        <option value="adhan2">Adhan - Madinah</option>
+                        <option value="notification">Gentle Notification</option>
+                    </select>
+                    <button onclick="testSound()" class="glass">
+                        <i class="fas fa-volume-up"></i> Test Sound
+                    </button>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Display</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoDarkMode" checked>
+                        <span class="toggle-slider"></span>
+                        <span>Auto Dark Mode</span>
+                    </label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="showMoonPhase" checked>
+                        <span class="toggle-slider"></span>
+                        <span>Show Moon Phase Animation</span>
+                    </label>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Data Management</h3>
+                    <button onclick="clearFavorites()" class="glass">
+                        <i class="fas fa-trash"></i> Clear Favorite Cities
+                    </button>
+                    <button onclick="exportSettings()" class="glass">
+                        <i class="fas fa-download"></i> Export Settings
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Audio Elements -->
+    <audio id="iftarSound" preload="auto"></audio>
+    <audio id="suhoorSound" preload="auto"></audio>
+
+    <!-- Scripts -->
+    <script src="src/js/utils.js"></script>
+    <script src="src/js/prayer-times.js"></script>
+    <script src="src/js/calendar.js"></script>
+    <script src="src/js/notifications.js"></script>
+    <script src="src/js/app.js"></script>
+</body>
+</html>
